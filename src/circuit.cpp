@@ -52,6 +52,7 @@ int Circuit::run(bool copy_back, bool destroy) {
     Logger::add("Time Cost: %d us", int(duration.count()));
 
     if (copy_back) {
+        printf("copy back...\n");
         result.resize(1ll << numQubits); // very slow ...
 #if BACKEND == 0 || BACKEND == 2
         kernelDeviceToHost((qComplex*)result.data(), deviceStateVec[0], numQubits);
@@ -60,6 +61,9 @@ int Circuit::run(bool copy_back, bool destroy) {
         for (int g = 0; g < MyGlobalVars::localGPUs; g++) {
             kernelDeviceToHost((qComplex*)result.data() + elements * g, deviceStateVec[g], numQubits - MyGlobalVars::bit);
         }
+        FILE* f = fopen("qft28-result.log", "wb");
+        fwrite((void*)result.data(), sizeof(qreal), 1 << (numQubits - MyGlobalVars::bit + 1), f);
+        fclose(f);
 #endif
     }
     if (destroy) {

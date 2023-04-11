@@ -10,6 +10,8 @@ find_library(CUTT cutt "${PROJECT_SOURCE_DIR}/third-party/cutt/cutt/lib")
 include_directories(${PROJECT_SOURCE_DIR}/third-party/cutt/cutt/include)
 include_directories(${PROJECT_SOURCE_DIR}/third-party/dbg-macro)
 MESSAGE(STATUS "Found CUTT: ${CUTT}")
+include_directories(${MPI_CXX_INCLUDE_DIRS})
+include_directories(${CUDA_INCLUDE_DIRS})
 
 set(CMAKE_CXX_FLAGS "-std=c++14 -O2 -g -Wall ${OpenMP_CXX_FLAGS}")
 set(CUDA_NVCC_FLAGS "-Xcompiler -fopenmp -std=c++14 -O2 -g -arch=compute_70 -code=sm_70 --ptxas-options=-v -lineinfo -keep")

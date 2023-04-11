@@ -180,6 +180,12 @@ std::unique_ptr<Circuit> parse_circuit(const std::string &filename) {
                 assert(qid.size() == 2);
                 c->addGate(Gate::CU1(qid[0], qid[1], gate.second[0]));
                 // printf("cu1 %d %d %f\n", qid[0], qid[1], gate.second[0]);
+            }  else if (gate.first == "cp") {
+                assert(gate.second.size() == 1);
+                fscanf(f, "%s", buffer);
+                auto qid = parse_qid(buffer);
+                assert(qid.size() == 2);
+                c->addGate(Gate::CU1(qid[0], qid[1], gate.second[0]));
             } else if (gate.first == "u1") {
                 assert(gate.second.size() == 1);
                 fscanf(f, "%s", buffer);
@@ -240,6 +246,7 @@ int main(int argc, char* argv[]) {
         printf("./parser qasmfile\n");
         exit(1);
     }
+    printf("???\n");
     c = parse_circuit(std::string(argv[1]));
     c->compile();
     c->run();
