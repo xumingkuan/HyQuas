@@ -1,3 +1,5 @@
+#pragma clang diagnostic push
+#pragma ide diagnostic ignored "UnreachableCode"
 #include "compiler.h"
 
 #include <cstring>
@@ -76,6 +78,12 @@ Schedule Compiler::run() {
     Schedule schedule;
     State state(numQubits);
     int numLocalQubits = numQubits - MyGlobalVars::bit;
+    printf("Num Stages: %d\n", localGroup.fullGroups.size());
+//    return schedule;
+    double cost = 0;
+    int total_gate = 0;
+    int total_fusion = 0;
+    int total_shm = 0;
     for (size_t id = 0; id < localGroup.fullGroups.size(); id++) {
         auto& gg = localGroup.fullGroups[id];
 
@@ -135,7 +143,8 @@ Schedule Compiler::run() {
         }
         AdvanceCompiler overlapCompiler(numQubits, overlapLocals, overlapBlasForbid, moveBack[id].first);
         AdvanceCompiler fullCompiler(numQubits, gg.relatedQubits, 0, gg.gates);
-        switch (BACKEND) {
+        lg.fullGroups = fullCompiler.run(state, true, true, LOCAL_QUBIT_SIZE, BLAS_MAT_LIMIT, numLocalQubits).fullGroups;
+        /*switch (BACKEND) {
             case 1: {
                 lg.overlapGroups = overlapCompiler.run(state, true, false, LOCAL_QUBIT_SIZE, BLAS_MAT_LIMIT, numLocalQubits - MyGlobalVars::bit).fullGroups;
                 lg.fullGroups = fullCompiler.run(state, true, false, LOCAL_QUBIT_SIZE, BLAS_MAT_LIMIT, numLocalQubits).fullGroups;
@@ -157,10 +166,40 @@ Schedule Compiler::run() {
                 UNREACHABLE()
                 break;
             }
+        }*/
+        //printf("full groups: %d\n", (int)lg.fullGroups.size());
+        double cost_stage = 0;
+        for (auto &group : lg.fullGroups) {
+            // printf("%d\n", group.backend);
+            int num_qubits = 0;
+            for (int i = 0; i <= 63; i++) {
+                if (group.contains(i)) {
+                    num_qubits++;
+                }
+            }
+            //printf("%dq%d\n", group.backend, num_qubits);
+            total_gate += group.gates.size();
+            if (group.backend == Backend::BLAS) {
+                // fusion
+                std::vector<double> fusion_cost = {0, 6.4, 6.2, 6.5, 6.4, 6.4, 25.8, 32.4};
+                assert(num_qubits < fusion_cost.size());
+                cost_stage += fusion_cost[num_qubits];
+                total_fusion++;
+            } else if (group.backend == Backend::PerGate) {
+                // shared-memory
+                cost_stage += 6 + group.gates.size() * 0.5;
+                total_shm++;
+            } else {
+                assert(false);
+            }
         }
-        schedule.localGroups.push_back(std::move(lg));
+        printf("stage = %.1f\n", cost_stage);
+        cost += cost_stage;
+//        schedule.localGroups.push_back(std::move(lg));
     }
-    schedule.finalState = state;
+    printf("cost = %.1f\n", cost);
+    printf("total: %d fusion, %d shm, %d gates\n", total_fusion, total_shm, total_gate);
+//    schedule.finalState = state;
     return schedule;
 }
 
@@ -502,3 +541,4 @@ void OneLayerCompiler<MAX_GATES>::removeGatesOpt(const std::vector<int>& remove)
     if (remain.empty())
         remainGates.clear();
 }
+#pragma clang diagnostic pop

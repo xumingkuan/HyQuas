@@ -111,6 +111,9 @@ add_subdirectory("src")
 add_executable(main main.cpp)
 target_link_libraries(main QCSimulator ${CUTT} ${OpenMP_CXX_FLAGS} ${CUDA_CUBLAS_LIBRARIES} ${MPI_CXX_LIBRARIES} ${NCCL_LIBRARY})
 
+add_executable(main2 main2.cpp)
+target_link_libraries(main2 QCSimulator ${CUTT} ${OpenMP_CXX_FLAGS} ${CUDA_CUBLAS_LIBRARIES} ${MPI_CXX_LIBRARIES} ${NCCL_LIBRARY})
+
 if (MICRO_BENCH)
     set(BENCHMARKS local-single local-ctr two-group-h bench-blas)
     foreach(BENCHMARK IN LISTS BENCHMARKS)

@@ -1,5 +1,8 @@
 #!/bin/bash
-source ../scripts/init.sh -DBACKEND=mix -DSHOW_SUMMARY=on -DSHOW_SCHEDULE=on -DMICRO_BENCH=on -DUSE_DOUBLE=on -DDISABLE_ASSERT=off -DENABLE_OVERLAP=on -DMEASURE_STAGE=off -DEVALUATOR_PREPROCESS=on -DUSE_MPI=off -DMAT=7
+#source ../scripts/env.sh ""
+#mkdir -p $HYQUAS_ROOT/build
+#cd $HYQUAS_ROOT/build
+ source ../scripts/init.sh -DBACKEND=mix -DSHOW_SUMMARY=on -DSHOW_SCHEDULE=on -DMICRO_BENCH=on -DUSE_DOUBLE=on -DDISABLE_ASSERT=off -DENABLE_OVERLAP=on -DMEASURE_STAGE=off -DEVALUATOR_PREPROCESS=on -DUSE_MPI=off -DMAT=7
 # CUDA_VISIBLE_DEVICES=0,1,2,3 ./main ../tests/input/supremacy_28.qasm
 # ./main ../../quartz-master/circuit/MQTBench_42q/qft_indep_qiskit_42.qasm > ../tests/42_qft.log
 # ./main ../../quartz-master/circuit/MQTBench_42q/aem_indep_qiskit_42.qasm > ../tests/42_ae.log
@@ -10,4 +13,15 @@ source ../scripts/init.sh -DBACKEND=mix -DSHOW_SUMMARY=on -DSHOW_SCHEDULE=on -DM
 # ./main ../../quartz-master/circuit/MQTBench_42q/qpeinexactm_indep_qiskit_42.qasm > ../tests/42_qpeinexact.log
 # ./main ../../quartz-master/circuit/MQTBench_42q/realamprandom_indep_qiskit_42.qasm > ../tests/42_realamprandom.log
 # ./main ../../quartz-master/circuit/MQTBench_42q/twolocalrandom_indep_qiskit_42.qasm > ../tests/42_twolocalrandom.log
-./main ../../quartz-master/circuit/MQTBench_42q/su2random_indep_qiskit_42.qasm > ../tests/42_su2random.log
+export names="ghz graphstate qft realamprandom su2random twolocalrandom"
+for name in ${names[*]}; do
+  echo "===== $name"
+  # ls "../../quartz-master/circuit/MQTBench_28q/${name}_indep_qiskit_28.qasm"
+  for numq in {28..34}; do
+    ./main2 ../../quartz-master/circuit/MQTBench_${numq}q/${name}_indep_qiskit_${numq}.qasm > tmp.log
+    grep "Number of global qubits" tmp.log
+    grep "cost =" tmp.log
+    grep "stage" tmp.log
+    grep "total" tmp.log
+  done
+done

@@ -154,6 +154,7 @@ namespace MyGlobalVars {
     extern std::unique_ptr<ncclComm_t[]> ncclComms;
 #endif
     void init();
+    void initt(int localGPUs);
 };
 
 namespace MyMPI {

@@ -14,6 +14,16 @@ std::unique_ptr<cublasHandle_t[]> blasHandles;
 std::unique_ptr<ncclComm_t[]> ncclComms;
 #endif
 
+void initt(int localGPUs) {
+    #if USE_MPI
+        numGPUs = MyMPI::commSize * 4;
+    #else
+        numGPUs = localGPUs;
+    #endif
+    Logger::add("Local GPU: %d", localGPUs);
+    bit = get_bit(numGPUs);
+}
+
 void init() {
     checkCudaErrors(cudaGetDeviceCount(&localGPUs));
     #if USE_MPI

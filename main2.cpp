@@ -257,11 +257,11 @@ int main(int argc, char* argv[]) {
     }
     printf("???\n");
     c = parse_circuit(std::string(argv[1]));
-    for (int i =0; i<=19; i++ ){
-        printf("Number of global qubits: %d\n", i);
-        MyGlobalVars::initt(qindex(1)<<i);
-        c->compile();
-    }
+    c->dumpGates();
+    int i = c->numQubits - 28;
+    printf("Number of global qubits: %d\n", i);
+    MyGlobalVars::initt(qindex(1)<<i);
+    c->compile();
     
     // c->run();
     // c->printState();
