@@ -6,6 +6,7 @@
 #include <algorithm>
 #include <assert.h>
 #include <set>
+#include <chrono>
 #include "dbg.h"
 #include "logger.h"
 #include "evaluator.h"
@@ -78,12 +79,13 @@ Schedule Compiler::run() {
     Schedule schedule;
     State state(numQubits);
     int numLocalQubits = numQubits - MyGlobalVars::bit;
-    printf("Num Stages: %d\n", localGroup.fullGroups.size());
+    printf("Num Stages: %d\n", (int)localGroup.fullGroups.size());
 //    return schedule;
     double cost = 0;
     int total_gate = 0;
     int total_fusion = 0;
     int total_shm = 0;
+    auto t0 = std::chrono::steady_clock::now();
     for (size_t id = 0; id < localGroup.fullGroups.size(); id++) {
         auto& gg = localGroup.fullGroups[id];
 
@@ -197,7 +199,13 @@ Schedule Compiler::run() {
         cost += cost_stage;
 //        schedule.localGroups.push_back(std::move(lg));
     }
-    printf("cost = %.1f\n", cost);
+    auto t1 = std::chrono::steady_clock::now();
+    // print cost and running time for DP
+    printf(
+        "cost = %.1f, %.3f\n", cost,
+        (double)std::chrono::duration_cast<std::chrono::milliseconds>(t1 - t0)
+                .count() /
+            1000.0);
     printf("total: %d fusion, %d shm, %d gates\n", total_fusion, total_shm, total_gate);
 //    schedule.finalState = state;
     return schedule;
