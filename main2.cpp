@@ -231,6 +231,9 @@ std::unique_ptr<Circuit> parse_circuit(const std::string &filename) {
                 assert(qid.size() == 1);
                 c->addGate(Gate::RZ(qid[0], gate.second[0]));
                 // printf("rz %d %f\n", qid[0], gate.second[0]);
+            } else if (gate.first == "creg") {
+                fgets(buffer, BUFFER_SIZE, f);
+                continue;
             } else {
                 printf("unrecognized token %s\n", buffer);
                 exit(1);
@@ -258,7 +261,7 @@ int main(int argc, char* argv[]) {
     printf("???\n");
     c = parse_circuit(std::string(argv[1]));
     c->dumpGates();
-    int i = c->numQubits - 28;
+    int i = max(c->numQubits - 28, 0);
     printf("Number of global qubits: %d\n", i);
     MyGlobalVars::initt(qindex(1)<<i);
     c->compile();

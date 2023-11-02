@@ -231,6 +231,9 @@ std::unique_ptr<Circuit> parse_circuit(const std::string &filename) {
                 assert(qid.size() == 1);
                 c->addGate(Gate::RZ(qid[0], gate.second[0]));
                 // printf("rz %d %f\n", qid[0], gate.second[0]);
+            } else if (gate.first == "creg") {
+                fgets(buffer, BUFFER_SIZE, f);
+                continue;
             } else {
                 printf("unrecognized token %s\n", buffer);
                 exit(1);
