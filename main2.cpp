@@ -260,7 +260,7 @@ int main(int argc, char* argv[]) {
         MyMPI::init();
     #endif
     std::unique_ptr<Circuit> c;
-    if (argc != 2) {
+    if (argc < 2) {
         printf("./parser qasmfile\n");
         exit(1);
     }
@@ -268,6 +268,9 @@ int main(int argc, char* argv[]) {
     c = parse_circuit(std::string(argv[1]));
     c->dumpGates();
     int i = max(c->numQubits - 28, 0);
+    if (argc == 3) {
+        i = std::stoi(std::string(argv[2]));
+    }
     printf("Number of global qubits: %d\n", i);
     MyGlobalVars::initt(qindex(1)<<i);
     c->compile();
